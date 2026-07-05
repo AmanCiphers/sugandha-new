@@ -9,29 +9,17 @@ import { Separator } from "@/components/ui/separator";
 import { formatPrice } from "@/lib/utils";
 import { useCart } from "@/features/cart/context/cart-context";
 
-const mockProducts = {
-  "1": { id: "1", name: "Royal Oud Attar", price: 2499, imageUrl: null, slug: "royal-oud-attar" },
-  "2": { id: "2", name: "Musk Al Tahara", price: 1999, imageUrl: null, slug: "musk-al-tahara" },
-  "3": { id: "3", name: "Car Freshner - Ocean Breeze", price: 399, imageUrl: null, slug: "car-freshner-ocean-breeze" },
-};
-
 export default function CheckoutPage() {
   const { items } = useCart();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const cartItems = items.map((item) => {
-    const product = mockProducts[item.productId];
-    return { ...item, product };
-  }).filter((item) => item.product);
-
-  const subtotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const shipping = subtotal >= 499 ? 0 : 99;
   const total = subtotal + shipping;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Mock checkout - replace with actual backend later
     await new Promise((r) => setTimeout(r, 1500));
     alert("Order placed successfully! (Demo)");
     setIsSubmitting(false);
@@ -100,7 +88,7 @@ export default function CheckoutPage() {
           <Button
             type="submit"
             className="w-full rounded-full h-12 bg-foreground text-background hover:bg-foreground/90"
-            disabled={isSubmitting || cartItems.length === 0}
+            disabled={isSubmitting || items.length === 0}
           >
             {isSubmitting ? "Processing..." : `Place Order - ${formatPrice(total)}`}
           </Button>
@@ -110,10 +98,12 @@ export default function CheckoutPage() {
           <div className="rounded-lg border border-border/40 p-6 sticky top-28">
             <h3 className="text-lg font-semibold text-foreground">Order Summary</h3>
             <div className="mt-4 space-y-3">
-              {cartItems.map((item) => (
+              {items.map((item) => (
                 <div key={item.id} className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">{item.product.name} x{item.quantity}</span>
-                  <span className="text-foreground">{formatPrice(item.product.price * item.quantity)}</span>
+                  <span className="text-muted-foreground">
+                    {item.productName}{item.sizeMl ? ` (${item.sizeMl}ml)` : ""} x{item.quantity}
+                  </span>
+                  <span className="text-foreground">{formatPrice(item.price * item.quantity)}</span>
                 </div>
               ))}
               <Separator />

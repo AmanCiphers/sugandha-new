@@ -9,12 +9,36 @@ import { ProductCard } from "@/components/shared/product-card";
 import { formatPrice } from "@/lib/utils";
 import { useCart } from "@/features/cart/context/cart-context";
 
+const STOCK_STATUS_LABELS = {
+  in_stock: { label: "In Stock", color: "text-green-600" },
+  low_stock: { label: "Low Stock", color: "text-orange-500" },
+  out_of_stock: { label: "Out of Stock", color: "text-red-500" },
+};
+
 export default function ProductContent({ product, relatedProducts }) {
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
+
+  const activeVariants = product.variants?.filter(v => v.is_active !== false) || [];
+  const [selectedVariantId, setSelectedVariantId] = useState(
+    activeVariants.find(v => v.stock > 0)?.id || activeVariants[0]?.id
+  );
+
+  const selectedVariant = activeVariants.find(v => v.id === selectedVariantId);
   const hasDiscount = product.discountType && product.discountValue > 0;
-  const outOfStock = product.stockStatus === "out_of_stock";
+  const variantOutOfStock = selectedVariant ? selectedVariant.stock <= 0 : true;
+  const isLowStock = selectedVariant && selectedVariant.stock > 0 && selectedVariant.stock <= selectedVariant.low_stock_threshold;
+
+  let displayPrice = selectedVariant?.price || product.price;
+  let displayFinalPrice = displayPrice;
+  if (hasDiscount) {
+    if (product.discountType === "percentage") {
+      displayFinalPrice = displayPrice - (displayPrice * product.discountValue / 100);
+    } else {
+      displayFinalPrice = displayPrice - product.discountValue;
+    }
+  }
 
   const highlights = [
     product.pricingType === "per_ml" ? "Pure attar oil" : "Premium quality",
@@ -27,8 +51,18 @@ export default function ProductContent({ product, relatedProducts }) {
   const specifications = {
     "Type": product.category?.name || "Fragrance",
     "Pricing": product.pricingType === "per_ml" ? "Per ML" : "Per Unit",
-    "Variants": `${product.variants.length} size${product.variants.length > 1 ? "s" : ""} available`,
-    ...(product.variants[0] ? { "Starting from": `${product.variants[0].size_ml}ml` } : {}),
+    "Variants": `${activeVariants.length} size${activeVariants.length > 1 ? "s" : ""} available`,
+    ...(selectedVariant ? { "Size": `${selectedVariant.size_ml}ml` } : {}),
+  };
+
+  const handleAddToCart = () => {
+    if (!selectedVariant || variantOutOfStock) return;
+    addItem(product.id, quantity, {
+      variantId: selectedVariant.id,
+      sizeMl: selectedVariant.size_ml,
+      price: Math.round(displayFinalPrice),
+      productName: product.name,
+    });
   };
 
   return (
@@ -52,7 +86,7 @@ export default function ProductContent({ product, relatedProducts }) {
                 -{product.discountType === "percentage" ? product.discountValue + "%" : formatPrice(product.discountValue)}
               </Badge>
             )}
-            {outOfStock && (
+            {variantOutOfStock && (
               <Badge variant="secondary">Out of Stock</Badge>
             )}
           </div>
@@ -79,14 +113,18 @@ export default function ProductContent({ product, relatedProducts }) {
 
           <div className="flex items-baseline gap-3">
             <span className="text-2xl font-bold text-foreground">
-              {formatPrice(product.finalPrice)}
+              {formatPrice(Math.round(displayFinalPrice))}
             </span>
             {hasDiscount && (
               <span className="text-lg text-muted-foreground line-through">
-                {formatPrice(product.price)}
+                {formatPrice(displayPrice)}
               </span>
             )}
           </div>
+
+          {isLowStock && (
+            <p className="text-xs text-orange-500">Only {selectedVariant.stock} left in stock</p>
+          )}
 
           <Separator />
 
@@ -94,17 +132,36 @@ export default function ProductContent({ product, relatedProducts }) {
             {product.description}
           </p>
 
-          <div>
-            <h3 className="mb-2 text-sm font-semibold text-foreground">Key Highlights</h3>
-            <ul className="grid grid-cols-2 gap-2">
-              {highlights.map((h) => (
-                <li key={h} className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span className="h-1.5 w-1.5 rounded-full bg-champagne-gold-dark" />
-                  {h}
-                </li>
-              ))}
-            </ul>
-          </div>
+          {activeVariants.length > 1 && (
+            <div>
+              <h3 className="mb-2 text-sm font-semibold text-foreground">Select Size</h3>
+              <div className="flex flex-wrap gap-2">
+                {activeVariants.map((v) => {
+                  const isSelected = v.id === selectedVariantId;
+                  const isOut = v.stock <= 0;
+                  return (
+                    <button
+                      key={v.id}
+                      onClick={() => { setSelectedVariantId(v.id); setQuantity(1); }}
+                      disabled={isOut}
+                      className={`relative rounded-lg border px-4 py-2 text-sm font-medium transition-all ${
+                        isSelected
+                          ? "border-foreground bg-foreground text-background"
+                          : isOut
+                          ? "border-border/40 text-muted-foreground/40 cursor-not-allowed"
+                          : "border-border/40 text-foreground hover:border-foreground"
+                      }`}
+                    >
+                      <span>{v.size_ml}ml</span>
+                      {isOut && (
+                        <span className="block text-[10px] opacity-60">Out of stock</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           <Separator />
 
@@ -129,11 +186,11 @@ export default function ProductContent({ product, relatedProducts }) {
 
             <Button
               className="flex-1 rounded-full h-12 bg-foreground text-background hover:bg-foreground/90"
-              disabled={outOfStock}
-              onClick={() => addItem(product.id, quantity)}
+              disabled={variantOutOfStock}
+              onClick={handleAddToCart}
             >
               <ShoppingBag className="mr-2 h-4 w-4" />
-              {outOfStock ? "Out of Stock" : "Add to Cart"}
+              {variantOutOfStock ? "Out of Stock" : "Add to Cart"}
             </Button>
 
             <Button variant="outline" size="icon" className="h-12 w-12 rounded-full">

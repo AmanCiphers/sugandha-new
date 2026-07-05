@@ -7,25 +7,14 @@ import { Separator } from "@/components/ui/separator";
 import { formatPrice } from "@/lib/utils";
 import { useCart } from "@/features/cart/context/cart-context";
 
-const mockProducts = {
-  "1": { id: "1", name: "Royal Oud Attar", price: 2499, imageUrl: null, slug: "royal-oud-attar" },
-  "2": { id: "2", name: "Musk Al Tahara", price: 1999, imageUrl: null, slug: "musk-al-tahara" },
-  "3": { id: "3", name: "Car Freshner - Ocean Breeze", price: 399, imageUrl: null, slug: "car-freshner-ocean-breeze" },
-};
-
 export default function CartPage() {
   const { items, updateQuantity, removeItem, itemCount } = useCart();
 
-  const cartItems = items.map((item) => {
-    const product = mockProducts[item.productId];
-    return { ...item, product };
-  }).filter((item) => item.product);
-
-  const subtotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const shipping = subtotal >= 499 ? 0 : 99;
   const total = subtotal + shipping;
 
-  if (cartItems.length === 0) {
+  if (items.length === 0) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-24 text-center sm:px-6 lg:px-8">
         <ShoppingBag className="mx-auto h-16 w-16 text-muted-foreground/30" />
@@ -55,20 +44,21 @@ export default function CartPage() {
 
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-4">
-          {cartItems.map((item) => (
+          {items.map((item) => (
             <div key={item.id} className="flex gap-4 rounded-lg border border-border/40 p-4">
-              <Link href={`/product/${item.product.slug}`} className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-champagne-gold/20 to-beige flex items-center justify-center">
+              <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-champagne-gold/20 to-beige flex items-center justify-center">
                 <span className="font-serif text-2xl text-muted-foreground/30">S</span>
-              </Link>
+              </div>
               <div className="flex flex-1 flex-col justify-between">
                 <div>
-                  <Link href={`/product/${item.product.slug}`}>
-                    <h3 className="text-sm font-medium text-foreground hover:text-muted-foreground transition-colors">
-                      {item.product.name}
-                    </h3>
-                  </Link>
+                  <h3 className="text-sm font-medium text-foreground">
+                    {item.productName}
+                  </h3>
+                  {item.sizeMl && (
+                    <p className="text-xs text-muted-foreground">{item.sizeMl}ml</p>
+                  )}
                   <p className="mt-1 text-sm font-semibold text-foreground">
-                    {formatPrice(item.product.price)}
+                    {formatPrice(item.price)}
                   </p>
                 </div>
                 <div className="flex items-center justify-between">

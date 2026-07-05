@@ -12,7 +12,8 @@ export function CartProvider({ children }) {
     const saved = sessionStorage.getItem("cart");
     if (saved) {
       try {
-        setItems(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        setItems(parsed.filter(item => item.productName));
       } catch {}
     }
   }, []);
@@ -21,17 +22,27 @@ export function CartProvider({ children }) {
     sessionStorage.setItem("cart", JSON.stringify(items));
   }, [items]);
 
-  const addItem = useCallback((productId, quantity = 1) => {
+  const addItem = useCallback((productId, quantity = 1, variantInfo = {}) => {
     setItems((prev) => {
-      const existing = prev.find((item) => item.productId === productId);
+      const key = `${productId}-${variantInfo.variantId || "default"}`;
+      const existing = prev.find((item) => item.cartKey === key);
       if (existing) {
         return prev.map((item) =>
-          item.productId === productId
+          item.cartKey === key
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
       }
-      return [...prev, { productId, quantity, id: Date.now().toString() }];
+      return [...prev, {
+        cartKey: key,
+        productId,
+        variantId: variantInfo.variantId || null,
+        sizeMl: variantInfo.sizeMl || null,
+        price: variantInfo.price || 0,
+        productName: variantInfo.productName || "",
+        quantity,
+        id: Date.now().toString(),
+      }];
     });
   }, []);
 

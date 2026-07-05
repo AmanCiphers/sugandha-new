@@ -75,7 +75,7 @@ export function ProductCard({
             disabled={outOfStock}
             onClick={(e) => {
               e.preventDefault();
-              addItem(id);
+              addItem(id, 1, { price: finalPrice, productName: name });
             }}
           >
             <ShoppingBag className="mr-2 h-4 w-4" />
