@@ -43,7 +43,7 @@ function baseProductQuery(supabase) {
   return supabase
     .from("products")
     .select(`
-      id, name, slug, short_description, full_description, base_price, pricing_type,
+      id, name, slug, sku, short_description, full_description, base_price, pricing_type,
       brand, is_new, is_featured, is_trending,
       created_at,
       category:categories(id, name, slug),

@@ -97,6 +97,9 @@ export default function ProductContent({ product, relatedProducts }) {
             <p className="text-xs uppercase tracking-widest text-muted-foreground">
               {product.brand}
             </p>
+            {product.sku && (
+              <p className="mt-1 font-mono text-xs text-muted-foreground">SKU: {product.sku}</p>
+            )}
             <h1 className="mt-2 font-serif text-3xl font-bold text-foreground sm:text-4xl">
               {product.name}
             </h1>

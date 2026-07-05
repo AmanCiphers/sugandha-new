@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, Plus, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,6 +32,7 @@ export default function ProductForm({ categories }) {
     const productData = {
       name: form.name.value,
       slug: form.slug.value,
+      sku: form.sku.value || null,
       brand: form.brand.value,
       short_description: form.description.value,
       category_id: form.category.value,
@@ -44,11 +46,27 @@ export default function ProductForm({ categories }) {
       })),
     };
     setSaving(true);
-    console.log("Product data:", productData);
-    await new Promise((r) => setTimeout(r, 1000));
-    alert("Product created! (Demo — check console for data)");
-    setSaving(false);
-    router.push("/admin/products");
+
+    try {
+      const res = await fetch("/api/admin/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(productData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to create product");
+      }
+
+      toast.success(`Product created with SKU: ${data.product.sku}`);
+      router.push("/admin/products");
+      router.refresh();
+    } catch (err) {
+      toast.error(err.message);
+      setSaving(false);
+    }
   };
 
   return (
@@ -76,6 +94,12 @@ export default function ProductForm({ categories }) {
               <div>
                 <label className="mb-1 block text-sm font-medium">Slug</label>
                 <Input required name="slug" placeholder="product-name-slug" />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium">
+                  SKU <span className="text-xs text-muted-foreground">(leave blank for auto)</span>
+                </label>
+                <Input name="sku" placeholder="Auto-generated (e.g. A-001)" />
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium">Brand</label>

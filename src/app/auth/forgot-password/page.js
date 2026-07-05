@@ -3,8 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, Mail } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { createClient } from "@/lib/supabase/client";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -14,9 +16,14 @@ export default function ForgotPasswordPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    // Mock - replace with actual password reset later
-    await new Promise((r) => setTimeout(r, 1000));
-    setSent(true);
+    const supabase = createClient();
+    const redirectTo = `${window.location.origin}/auth/callback`;
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+    if (error) {
+      toast.error(error.message);
+    } else {
+      setSent(true);
+    }
     setLoading(false);
   };
 

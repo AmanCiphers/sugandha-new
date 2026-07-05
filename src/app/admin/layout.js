@@ -1,16 +1,30 @@
-"use client";
+import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { redirect } from "next/navigation";
+import AdminLayoutClient from "./admin-layout-client";
 
-import { AdminSidebar } from "@/components/layout/admin-sidebar";
-import { AdminHeader } from "@/components/layout/admin-header";
+export default async function AdminLayout({ children }) {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-export default function AdminLayout({ children }) {
-  return (
-    <div className="flex min-h-screen bg-muted/30">
-      <AdminSidebar />
-      <div className="flex flex-1 flex-col">
-        <AdminHeader />
-        <main className="flex-1 p-6">{children}</main>
-      </div>
-    </div>
-  );
+    if (!user) {
+      redirect("/auth/login");
+    }
+
+    const adminSupabase = createAdminClient();
+    const { data: profile } = await adminSupabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (profile?.role !== "admin") {
+      redirect("/");
+    }
+  } catch {
+    redirect("/auth/login");
+  }
+
+  return <AdminLayoutClient>{children}</AdminLayoutClient>;
 }

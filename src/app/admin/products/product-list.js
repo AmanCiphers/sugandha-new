@@ -45,6 +45,7 @@ export default function ProductList({ products }) {
               <thead>
                 <tr className="border-b border-border/40">
                   <th className="text-left font-medium text-muted-foreground pb-3">Product</th>
+                  <th className="text-left font-medium text-muted-foreground pb-3">SKU</th>
                   <th className="text-left font-medium text-muted-foreground pb-3">Category</th>
                   <th className="text-right font-medium text-muted-foreground pb-3">Price</th>
                   <th className="text-right font-medium text-muted-foreground pb-3">Stock</th>
@@ -56,6 +57,7 @@ export default function ProductList({ products }) {
                 {filtered.map((p) => (
                   <tr key={p.id} className="border-b border-border/20 hover:bg-muted/50 transition-colors">
                     <td className="py-3 font-medium">{p.name}</td>
+                    <td className="py-3 font-mono text-xs text-muted-foreground">{p.sku || "—"}</td>
                     <td className="py-3 text-muted-foreground">{p.categoryName}</td>
                     <td className="py-3 text-right">{formatPrice(p.primaryPrice)}</td>
                     <td className="py-3 text-right">

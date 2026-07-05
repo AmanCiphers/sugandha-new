@@ -5,7 +5,7 @@ export async function getAdminProducts() {
   const { data, error } = await supabase
     .from("products")
     .select(`
-      id, name, slug, short_description, base_price, pricing_type, is_active, is_new, is_featured, created_at,
+      id, name, slug, sku, short_description, base_price, pricing_type, is_active, is_new, is_featured, created_at,
       category:categories(id, name, slug),
       variants:product_variants(id, size_ml, price, stock, low_stock_threshold, is_active),
       images:product_images(id, url, is_primary)

@@ -100,6 +100,22 @@ export function Footer() {
           <p className="text-center text-xs text-muted-foreground">
             &copy; {new Date().getFullYear()} {STORE_NAME}. All rights reserved.
           </p>
+          <p className="mt-2 text-center text-xs text-muted-foreground">
+            Crafted by{" "}
+            <a
+              href="https://thecloverforge.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 underline underline-offset-2 hover:text-foreground transition-colors"
+            >
+              CloverForge
+              <img
+                src="https://res.cloudinary.com/dzpqtijgc/image/upload/v1781414959/logo_wtaptw.svg"
+                alt=""
+                className="inline-block h-3.5 w-auto"
+              />
+            </a>
+          </p>
         </div>
       </div>
     </footer>

@@ -21,11 +21,15 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const result = await signIn(email, password);
-    if (result.success) {
-      router.push("/");
-    } else {
-      setError(result.error || "Something went wrong");
+    try {
+      const result = await signIn(email, password);
+      if (result.success) {
+        router.push("/");
+      } else {
+        setError(result.error || "Something went wrong");
+      }
+    } catch (err) {
+      setError(err.message || "An unexpected error occurred");
     }
     setLoading(false);
   };

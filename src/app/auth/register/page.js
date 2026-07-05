@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/features/auth/context/auth-context";
@@ -17,19 +17,49 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [needsConfirmation, setNeedsConfirmation] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const result = await signUp(email, password, name);
-    if (result.success) {
-      router.push("/");
-    } else {
-      setError(result.error || "Something went wrong");
+    try {
+      const result = await signUp(email, password, name);
+      if (result.success) {
+        if (result.needsConfirmation) {
+          setNeedsConfirmation(true);
+        } else {
+          router.push("/");
+        }
+      } else {
+        setError(result.error || "Something went wrong");
+      }
+    } catch (err) {
+      setError(err.message || "An unexpected error occurred");
     }
     setLoading(false);
   };
+
+  if (needsConfirmation) {
+    return (
+      <div className="text-center">
+        <Mail className="mx-auto h-12 w-12 text-muted-foreground" />
+        <h1 className="mt-4 font-serif text-xl font-bold text-foreground">Check Your Email</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          We&apos;ve sent a confirmation link to <strong>{email}</strong>
+        </p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Click the link to activate your account, then sign in.
+        </p>
+        <Link
+          href="/auth/login"
+          className="mt-6 inline-flex h-11 items-center rounded-full bg-foreground px-8 text-sm font-medium text-background hover:bg-foreground/90"
+        >
+          Go to Sign In
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div>

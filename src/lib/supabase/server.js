@@ -27,9 +27,17 @@ export async function createClient() {
           return cookieStore.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          );
+          cookiesToSet.forEach(({ name, value, options }) => {
+            try {
+              cookieStore.set(name, value, options);
+            } catch {
+              // Silently ignore — cookie modification is only allowed in
+              // Route Handlers, Server Actions, and Middleware/Proxy.
+              // During Server Component rendering, token refresh cookies
+              // can't be persisted, but the middleware handles this on the
+              // next request.
+            }
+          });
         },
       },
     }
