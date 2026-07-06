@@ -33,6 +33,8 @@ export function FeaturedProducts({ products = [] }) {
               brand={product.brand}
               discountType={product.discountType}
               discountValue={product.discountValue}
+              firstVariantId={product.firstVariantId}
+              firstVariantSizeMl={product.firstVariantSizeMl}
             />
           ))}
         </div>

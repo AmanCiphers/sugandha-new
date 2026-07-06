@@ -1,29 +1,104 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ChevronLeft, CreditCard, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { formatPrice } from "@/lib/utils";
 import { useCart } from "@/features/cart/context/cart-context";
+import { useAuth } from "@/features/auth/context/auth-context";
+import { toast } from "sonner";
 
 export default function CheckoutPage() {
-  const { items } = useCart();
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+  const { items, clearCart } = useCart();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [shipping, setShipping] = useState({
+    full_name: "",
+    email: "",
+    phone: "",
+    line1: "",
+    line2: "",
+    city: "",
+    state: "",
+    pincode: "",
+  });
+  const [paymentMethod, setPaymentMethod] = useState("cod");
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/auth/login?redirect=/checkout");
+    }
+  }, [user, authLoading, router]);
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shipping = subtotal >= 499 ? 0 : 99;
-  const total = subtotal + shipping;
+  const shippingCharge = subtotal >= 499 ? 0 : 99;
+  const total = subtotal + shippingCharge;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
+    if (!user) {
+      toast.error("Please sign in to place an order");
+      return;
+    }
+
+    if (!items.length) {
+      toast.error("Your cart is empty");
+      return;
+    }
+
     setIsSubmitting(true);
-    await new Promise((r) => setTimeout(r, 1500));
-    alert("Order placed successfully! (Demo)");
-    setIsSubmitting(false);
+
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map((i) => ({
+            variantId: i.variantId,
+            productName: i.productName,
+            sizeMl: i.sizeMl,
+            quantity: i.quantity,
+            price: i.price,
+          })),
+          shipping,
+          paymentMethod,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong");
+      }
+
+      clearCart();
+      toast.success("Order placed successfully!");
+      router.push(`/account/orders/${data.order.order_number}`);
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  const updateField = (field, value) => {
+    setShipping((prev) => ({ ...prev, [field]: value }));
+  };
+
+  if (authLoading) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <p className="text-center text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -38,31 +113,35 @@ export default function CheckoutPage() {
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <label className="mb-1 block text-sm font-medium text-foreground">Full Name</label>
-                <Input required placeholder="John Doe" />
+                <Input required placeholder="John Doe" value={shipping.full_name} onChange={(e) => updateField("full_name", e.target.value)} />
               </div>
               <div className="sm:col-span-2">
                 <label className="mb-1 block text-sm font-medium text-foreground">Email</label>
-                <Input required type="email" placeholder="john@example.com" />
+                <Input required type="email" placeholder="john@example.com" value={shipping.email} onChange={(e) => updateField("email", e.target.value)} />
               </div>
               <div className="sm:col-span-2">
                 <label className="mb-1 block text-sm font-medium text-foreground">Phone</label>
-                <Input required type="tel" placeholder="+91 98765 43210" />
+                <Input required type="tel" placeholder="+91 98765 43210" value={shipping.phone} onChange={(e) => updateField("phone", e.target.value)} />
               </div>
               <div className="sm:col-span-2">
                 <label className="mb-1 block text-sm font-medium text-foreground">Address</label>
-                <Input required placeholder="123 Main Street" />
+                <Input required placeholder="123 Main Street" value={shipping.line1} onChange={(e) => updateField("line1", e.target.value)} />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="mb-1 block text-sm font-medium text-foreground">Address Line 2 (Optional)</label>
+                <Input placeholder="Apartment, suite, etc." value={shipping.line2} onChange={(e) => updateField("line2", e.target.value)} />
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium text-foreground">City</label>
-                <Input required placeholder="Mumbai" />
+                <Input required placeholder="Mumbai" value={shipping.city} onChange={(e) => updateField("city", e.target.value)} />
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium text-foreground">State</label>
-                <Input required placeholder="Maharashtra" />
+                <Input required placeholder="Maharashtra" value={shipping.state} onChange={(e) => updateField("state", e.target.value)} />
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium text-foreground">Pincode</label>
-                <Input required placeholder="400001" />
+                <Input required placeholder="400001" value={shipping.pincode} onChange={(e) => updateField("pincode", e.target.value)} />
               </div>
             </div>
           </div>
@@ -73,12 +152,12 @@ export default function CheckoutPage() {
             <h2 className="font-serif text-2xl font-bold text-foreground">Payment Method</h2>
             <div className="mt-6 space-y-3">
               <label className="flex items-center gap-3 rounded-lg border border-border/40 p-4 cursor-pointer hover:border-foreground/30 transition-colors">
-                <input type="radio" name="payment" defaultChecked className="accent-foreground" />
+                <input type="radio" name="payment" value="cod" checked={paymentMethod === "cod"} onChange={(e) => setPaymentMethod(e.target.value)} className="accent-foreground" />
                 <CreditCard className="h-5 w-5 text-muted-foreground" />
                 <span className="text-sm font-medium text-foreground">Cash on Delivery</span>
               </label>
-              <label className="flex items-center gap-3 rounded-lg border border-border/40 p-4 cursor-pointer hover:border-foreground/30 transition-colors">
-                <input type="radio" name="payment" className="accent-foreground" />
+              <label className="flex items-center gap-3 rounded-lg border border-border/40 p-4 opacity-50 cursor-not-allowed">
+                <input type="radio" name="payment" value="online" disabled className="accent-foreground" />
                 <Truck className="h-5 w-5 text-muted-foreground" />
                 <span className="text-sm font-medium text-foreground">UPI / Card (Coming Soon)</span>
               </label>
@@ -113,7 +192,7 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Shipping</span>
-                <span className="text-foreground">{shipping === 0 ? "Free" : formatPrice(shipping)}</span>
+                <span className="text-foreground">{shippingCharge === 0 ? "Free" : formatPrice(shippingCharge)}</span>
               </div>
               <Separator />
               <div className="flex justify-between text-base font-semibold">

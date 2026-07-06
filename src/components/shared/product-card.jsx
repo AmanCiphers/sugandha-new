@@ -21,11 +21,14 @@ export function ProductCard({
   discountType,
   discountValue,
   stockStatus,
+  firstVariantId,
+  firstVariantSizeMl,
   className,
 }) {
   const { addItem } = useCart();
   const hasDiscount = finalPrice < price;
   const outOfStock = stockStatus === "out_of_stock";
+  const noVariant = !firstVariantId;
 
   return (
     <div
@@ -72,14 +75,20 @@ export function ProductCard({
           <Button
             className="w-full rounded-full bg-foreground text-background hover:bg-foreground/90"
             size="sm"
-            disabled={outOfStock}
+            disabled={outOfStock || noVariant}
             onClick={(e) => {
               e.preventDefault();
-              addItem(id, 1, { price: finalPrice, productName: name });
+              if (noVariant) return;
+              addItem(id, 1, {
+                price: finalPrice,
+                productName: name,
+                variantId: firstVariantId,
+                sizeMl: firstVariantSizeMl,
+              });
             }}
           >
             <ShoppingBag className="mr-2 h-4 w-4" />
-            {outOfStock ? "Out of Stock" : "Add to Cart"}
+            {noVariant ? "Unavailable" : outOfStock ? "Out of Stock" : "Add to Cart"}
           </Button>
         </div>
       </Link>

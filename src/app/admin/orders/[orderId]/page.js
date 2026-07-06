@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { formatPrice, formatDate } from "@/lib/utils";
 import { ORDER_STATUSES } from "@/constants";
 import { getAdminOrderById } from "@/lib/admin-queries";
+import OrderStatusUpdate from "./order-status-update";
 
 export default async function AdminOrderDetailPage({ params }) {
   const { orderId } = await params;
@@ -121,6 +122,15 @@ export default async function AdminOrderDetailPage({ params }) {
               </CardContent>
             </Card>
           )}
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Update Status</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <OrderStatusUpdate orderId={orderId} currentStatus={order.status} />
+            </CardContent>
+          </Card>
 
           <Card>
             <CardHeader>

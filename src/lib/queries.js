@@ -16,6 +16,8 @@ function transformProduct(product) {
     : 0;
   const firstVariant = product.variants?.[0];
   const price = firstVariant?.price || product.base_price;
+  const firstVariantId = firstVariant?.id || null;
+  const firstVariantSizeMl = firstVariant?.size_ml || null;
   const description = product.full_description || product.short_description || "";
   return {
     id: product.id,
@@ -34,6 +36,8 @@ function transformProduct(product) {
     discountValue: 0,
     stockStatus: computeStockStatus(product.variants),
     variants: product.variants || [],
+    firstVariantId,
+    firstVariantSizeMl,
     category: product.category || null,
     pricingType: product.pricing_type,
   };

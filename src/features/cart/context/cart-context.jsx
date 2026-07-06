@@ -13,7 +13,7 @@ export function CartProvider({ children }) {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        setItems(parsed.filter(item => item.productName));
+        setItems(parsed.filter(item => item.productName && item.variantId));
       } catch {}
     }
   }, []);
