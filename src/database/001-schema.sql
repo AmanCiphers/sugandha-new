@@ -433,11 +433,12 @@ RETURNS TRIGGER
 SECURITY DEFINER SET search_path = ''
 AS $$
 BEGIN
-  INSERT INTO public.profiles (id, email, full_name)
+  INSERT INTO public.profiles (id, email, full_name, phone)
   VALUES (
     NEW.id,
     NEW.email,
-    NEW.raw_user_meta_data ->> 'full_name'
+    NEW.raw_user_meta_data ->> 'full_name',
+    NEW.raw_user_meta_data ->> 'phone'
   );
   RETURN NEW;
 END;

@@ -6,8 +6,8 @@ import { ProductCard } from "@/components/shared/product-card";
 import { Button } from "@/components/ui/button";
 import { SORT_OPTIONS } from "@/constants";
 
-export default function ShopContent({ initialProducts, categories }) {
-  const [searchQuery, setSearchQuery] = useState("");
+export default function ShopContent({ initialProducts, categories, searchQuery: initialSearch = "" }) {
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("newest");
   const [showFilters, setShowFilters] = useState(false);

@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { User, Package, MapPin, LogOut, ChevronRight } from "lucide-react";
+import { User, Package, MapPin, Settings, LogOut, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/context/auth-context";
 
 const links = [
   { href: "/account/orders", label: "My Orders", icon: Package, description: "View and track your orders" },
   { href: "/account/addresses", label: "Addresses", icon: MapPin, description: "Manage your shipping addresses" },
+  { href: "/account/profile", label: "Profile", icon: Settings, description: "Update your name and phone" },
 ];
 
 export default function AccountPage() {

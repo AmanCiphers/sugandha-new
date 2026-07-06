@@ -6,13 +6,12 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useAuth } from "@/features/auth/context/auth-context";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { signUp } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -24,18 +23,51 @@ export default function RegisterPage() {
     setError("");
     setLoading(true);
     try {
-      const result = await signUp(email, password, name);
-      if (result.success) {
-        if (result.needsConfirmation) {
-          setNeedsConfirmation(true);
-        } else {
-          router.push("/");
-        }
+      const check = await fetch("/api/account/check-duplicate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, phone }),
+      });
+      const checkData = await check.json();
+
+      if (!check.ok) {
+        setError("Something went wrong. Please try again.");
+        setLoading(false);
+        return;
+      }
+
+      if (checkData.duplicate) {
+        setError(
+          checkData.field === "email" ? "This email is already registered" :
+          "This phone number is already registered"
+        );
+        setLoading(false);
+        return;
+      }
+
+      const signupRes = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, name, phone }),
+      });
+      const signupData = await signupRes.json();
+
+      if (!signupRes.ok) {
+        setError(
+          signupData.error && typeof signupData.error === "string"
+            ? signupData.error : "Something went wrong"
+        );
+        setLoading(false);
+        return;
+      }
+
+      if (signupData.needsConfirmation) {
+        setNeedsConfirmation(true);
       } else {
-        setError(result.error || "Something went wrong");
+        router.push("/");
       }
     } catch (err) {
-      setError(err.message || "An unexpected error occurred");
+      setError("Something went wrong. Please try again.");
     }
     setLoading(false);
   };
@@ -84,6 +116,16 @@ export default function RegisterPage() {
             placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-foreground">Phone</label>
+          <Input
+            type="tel"
+            required
+            placeholder="+91 98765 43210"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
           />
         </div>
         <div>

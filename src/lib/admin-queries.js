@@ -125,6 +125,23 @@ export async function getAdminUserById(userId) {
   };
 }
 
+export async function getAdminProductById(productId) {
+  const supabase = createAdminClient();
+  const { data: product, error } = await supabase
+    .from("products")
+    .select(`
+      *,
+      category:categories(id, name),
+      variants:product_variants(id, size_ml, price, stock, low_stock_threshold, is_active),
+      images:product_images(id, url, alt_text, sort_order, is_primary)
+    `)
+    .eq("id", productId)
+    .single();
+
+  if (error) return null;
+  return product;
+}
+
 export async function getAdminCategories() {
   const supabase = createAdminClient();
   const { data, error } = await supabase

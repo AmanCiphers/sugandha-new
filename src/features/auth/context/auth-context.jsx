@@ -62,17 +62,21 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const signUp = useCallback(async (email, password, name) => {
+  const signUp = useCallback(async (email, password, name, phone) => {
     try {
       const supabase = createClient();
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { full_name: name } },
+        options: { data: { full_name: name, phone: phone || null } },
       });
-      if (error) return { success: false, error: error.message };
+      if (error) {
+        console.error("signUp Supabase error:", error);
+        return { success: false, error: error.message };
+      }
       return { success: true, needsConfirmation: !data.session };
     } catch (err) {
+      console.error("signUp catch error:", err);
       return { success: false, error: err.message || "Network error. Check your connection." };
     }
   }, []);

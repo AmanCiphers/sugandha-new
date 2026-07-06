@@ -74,6 +74,10 @@ export async function getPublishedProducts(options = {}) {
   if (options.excludeSlug) {
     query = query.neq("slug", options.excludeSlug);
   }
+  if (options.search) {
+    query = query.or(`name.ilike.%${options.search}%,short_description.ilike.%${options.search}%,brand.ilike.%${options.search}%`);
+  }
+
   if (options.sort === "price_asc") {
     query = query.order("base_price", { ascending: true });
   } else if (options.sort === "price_desc") {
