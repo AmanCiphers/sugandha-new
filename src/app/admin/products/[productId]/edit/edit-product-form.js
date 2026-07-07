@@ -169,7 +169,7 @@ export default function EditProductForm({ product, categories }) {
                   <select
                     value={categoryId}
                     onChange={(e) => setCategoryId(e.target.value)}
-                    className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm focus:border-ring focus:outline-none"
+                    className="h-9 w-full cursor-pointer rounded-lg border border-input bg-transparent px-3 text-sm focus:border-ring focus:outline-none"
                   >
                     <option value="">No category</option>
                     {categories.map((c) => (

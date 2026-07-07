@@ -42,7 +42,7 @@ export default function OrderStatusUpdate({ orderId, currentStatus }) {
       <select
         value={status}
         onChange={(e) => setStatus(e.target.value)}
-        className="w-full rounded-md border border-border/40 bg-background px-3 py-2 text-sm"
+        className="w-full cursor-pointer rounded-md border border-border/40 bg-background px-3 py-2 text-sm"
       >
         {ORDER_STATUSES.map((s) => (
           <option key={s.value} value={s.value}>

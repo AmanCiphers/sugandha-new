@@ -36,11 +36,12 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-md">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-8">
-          <Link
-            href="/"
-            className="font-serif text-2xl font-bold tracking-wide text-foreground"
-          >
-            {STORE_NAME}
+          <Link href="/" className="shrink-0">
+            <img
+              src="/sugandha_logo.svg"
+              alt={STORE_NAME}
+              className="h-10 w-auto"
+            />
           </Link>
 
           <nav className="hidden md:flex md:items-center md:gap-1">
@@ -167,12 +168,12 @@ export function Navbar() {
         <SheetContent open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)}>
           {() => (
             <div className="flex flex-col gap-6 pt-6">
-              <Link
-                href="/"
-                className="font-serif text-xl font-bold"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {STORE_NAME}
+              <Link href="/" onClick={() => setMobileMenuOpen(false)}>
+                <img
+                  src="/sugandha_logo.svg"
+                  alt={STORE_NAME}
+                  className="h-8 w-auto"
+                />
               </Link>
 
               <div className="flex flex-col gap-2">

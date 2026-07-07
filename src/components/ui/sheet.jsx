@@ -61,7 +61,7 @@ export function SheetContent({
   return (
     <>
       <div
-        className="fixed inset-0 z-50 bg-black/10 backdrop-blur-xs"
+        className="fixed inset-0 z-50 cursor-pointer bg-black/10 backdrop-blur-xs"
         onClick={handleClose}
       />
       <div

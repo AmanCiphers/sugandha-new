@@ -147,7 +147,7 @@ export async function getAdminCategories() {
   const { data, error } = await supabase
     .from("categories")
     .select(`
-      id, name, slug, description, parent_id, sort_order,
+      id, name, slug, description, parent_id, sort_order, image_url,
       product_count:products(count)
     `)
     .order("sort_order", { ascending: true });

@@ -111,7 +111,7 @@ export async function getCategories() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("categories")
-    .select("id, name, slug, description, parent_id, sort_order")
+    .select("id, name, slug, description, parent_id, sort_order, image_url")
     .order("sort_order", { ascending: true });
 
   if (error) {
@@ -125,7 +125,7 @@ export async function getCategoryBySlug(slug) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("categories")
-    .select("id, name, slug, description, parent_id, sort_order")
+    .select("id, name, slug, description, parent_id, sort_order, image_url")
     .eq("slug", slug)
     .single();
 

@@ -11,13 +11,14 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
           <div>
-            <Link
-              href="/"
-              className="font-serif text-2xl font-bold tracking-wide"
-            >
-              {STORE_NAME}
+            <Link href="/">
+              <img
+                src="/sugandha_logo.svg"
+                alt={STORE_NAME}
+                className="h-10 w-auto"
+              />
             </Link>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
               Premium fragrances curated for those who appreciate the art of
               fine scent. Discover your signature fragrance with Sugandha.
             </p>

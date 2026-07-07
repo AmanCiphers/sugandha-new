@@ -110,7 +110,7 @@ export default function ProductForm({ categories }) {
                 <select
                   value={pricingType}
                   onChange={(e) => setPricingType(e.target.value)}
-                  className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm focus:border-ring focus:outline-none"
+                  className="h-9 w-full cursor-pointer rounded-lg border border-input bg-transparent px-3 text-sm focus:border-ring focus:outline-none"
                 >
                   <option value="per_ml">Per ML</option>
                   <option value="per_unit">Per Unit (flat)</option>
@@ -121,7 +121,7 @@ export default function ProductForm({ categories }) {
                 <select
                   name="category"
                   required
-                  className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm focus:border-ring focus:outline-none"
+                  className="h-9 w-full cursor-pointer rounded-lg border border-input bg-transparent px-3 text-sm focus:border-ring focus:outline-none"
                 >
                   <option value="">Select category</option>
                   {categories.map((cat) => (

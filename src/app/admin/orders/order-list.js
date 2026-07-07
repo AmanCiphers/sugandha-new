@@ -40,7 +40,7 @@ export default function OrderList({ orders }) {
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="h-10 rounded-lg border border-input bg-transparent px-3 text-sm"
+          className="h-10 cursor-pointer rounded-lg border border-input bg-transparent px-3 text-sm"
         >
           {statusFilters.map((s) => (
             <option key={s} value={s}>

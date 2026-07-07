@@ -60,7 +60,7 @@ export default function ShopContent({ initialProducts, categories, searchQuery: 
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="h-10 rounded-full border border-border bg-background px-4 text-sm focus:border-foreground focus:outline-none focus:ring-0"
+            className="h-10 cursor-pointer rounded-full border border-border bg-background px-4 text-sm focus:border-foreground focus:outline-none focus:ring-0"
           >
             {SORT_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>

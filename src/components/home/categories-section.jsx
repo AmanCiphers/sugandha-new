@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { SectionHeader } from "@/components/shared/section-header";
 import { cn } from "@/lib/utils";
 
-const categoryGradients = [
+const fallbackGradients = [
   "from-rose-gold/30 to-muted-blush",
   "from-champagne-gold/30 to-beige",
   "from-stone/20 to-warm-white",
@@ -28,21 +28,28 @@ export function CategoriesSection({ categories = [] }) {
             <Link
               key={category.id}
               href={`/category/${category.slug}`}
-              className={cn(
-                "group relative flex h-[200px] items-end overflow-hidden rounded-lg border border-border/40 bg-gradient-to-br transition-all duration-300 hover:shadow-lg",
-                categoryGradients[index % categoryGradients.length]
-              )}
+              className="group relative flex h-[260px] items-end overflow-hidden rounded-lg border border-border/40 bg-muted transition-all duration-300 hover:shadow-lg"
             >
+              {category.image_url ? (
+                <img
+                  src={category.image_url}
+                  alt={category.name}
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              ) : (
+                <div className={cn("absolute inset-0 bg-gradient-to-br", fallbackGradients[index % fallbackGradients.length])} />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               <div className="relative z-10 w-full p-6">
-                <h3 className="font-serif text-xl font-semibold text-foreground">
+                <h3 className="font-serif text-xl font-semibold text-white">
                   {category.name}
                 </h3>
                 {category.description && (
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="mt-1 text-sm text-white/80">
                     {category.description}
                   </p>
                 )}
-                <div className="mt-3 flex items-center gap-1 text-xs font-medium text-foreground/60 transition-colors group-hover:text-foreground">
+                <div className="mt-3 flex items-center gap-1 text-xs font-medium text-white/70 transition-colors group-hover:text-white">
                   <span>Explore</span>
                   <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
                 </div>

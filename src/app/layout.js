@@ -26,6 +26,10 @@ export const metadata = {
     "premium scents",
     "Sugandha",
   ],
+  icons: {
+    icon: "/sugandha_logo.png",
+    apple: "/sugandha_logo.png",
+  },
   openGraph: {
     title: "Sugandha - Premium Fragrances",
     description:
@@ -33,6 +37,7 @@ export const metadata = {
     type: "website",
     locale: "en_IN",
     siteName: "Sugandha",
+    images: ["/sugandha_logo.png"],
   },
   robots: {
     index: true,
