@@ -7,13 +7,30 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { formatPrice } from "@/lib/utils";
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 export default function ProductList({ products }) {
   const [search, setSearch] = useState("");
+  const [deletingId, setDeletingId] = useState(null);
 
   const filtered = products.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase())
   );
+
+  const handleDelete = async (id) => {
+    try {
+      const res = await fetch(`/api/admin/products/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to delete");
+      toast.success("Product deleted");
+      window.location.reload();
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -77,9 +94,28 @@ export default function ProductList({ products }) {
                             <Pencil className="h-4 w-4" />
                           </Button>
                         </Link>
-                        <Button variant="ghost" size="icon-sm" className="text-red-500">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <AlertDialog open={deletingId === p.id} onOpenChange={(open) => setDeletingId(open ? p.id : null)}>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon-sm" className="text-red-500">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Product</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete "{p.name}"? This action cannot be undone.
+                                Products with existing orders cannot be deleted — deactivate them instead.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <div className="flex gap-3 justify-end">
+                              <AlertDialogCancel onClick={() => setDeletingId(null)}>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDelete(p.id)} className="bg-red-600 hover:bg-red-700">
+                                Delete
+                              </AlertDialogAction>
+                            </div>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </td>
                   </tr>

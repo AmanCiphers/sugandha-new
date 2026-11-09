@@ -12,7 +12,7 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { items, shipping, paymentMethod } = body;
+    const { items, shipping, paymentMethod, couponId, discountAmount } = body;
 
     if (!items?.length) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
@@ -61,7 +61,8 @@ export async function POST(request) {
 
     const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
     const shippingCharge = subtotal >= 499 ? 0 : 99;
-    const total = subtotal + shippingCharge;
+    const discount = Number(discountAmount) || 0;
+    const total = subtotal + shippingCharge - discount;
 
     // Create order
     const { data: order, error: orderError } = await adminSupabase
@@ -71,9 +72,10 @@ export async function POST(request) {
         user_id: user.id,
         subtotal,
         shipping_charge: shippingCharge,
-        discount_amount: 0,
+        discount_amount: discount,
         total_amount: total,
         payment_method: paymentMethod || "cod",
+        coupon_id: couponId || null,
         shipping_address_id: address.id,
       })
       .select()
@@ -128,6 +130,128 @@ export async function POST(request) {
           .update({ stock: Math.max(0, variant.stock - item.quantity) })
           .eq("id", item.variantId);
       }
+    }
+
+    // Increment coupon usage count
+    if (couponId) {
+      const { data: coupon } = await adminSupabase
+        .from("coupons")
+        .select("used_count")
+        .eq("id", couponId)
+        .single();
+      if (coupon) {
+        await adminSupabase
+          .from("coupons")
+          .update({ used_count: (coupon.used_count || 0) + 1 })
+          .eq("id", couponId);
+      }
+    }
+
+    // Send admin notification email (non-blocking)
+    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
+    const resendKey = process.env.RESEND_API_KEY;
+    if (adminEmail && resendKey) {
+      const itemsList = items
+        .map((i) => `${i.productName}${i.sizeMl ? ` (${i.sizeMl}ml)` : ""} x ${i.quantity} — ₹${(i.price * i.quantity).toFixed(2)}`)
+        .join("\n");
+
+      fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${resendKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: "Sugandha Orders <onboarding@resend.dev>",
+          to: adminEmail,
+          subject: `New Order #${orderNumber} — ₹${total.toFixed(2)}`,
+          html: `
+            <div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
+              <h2 style="color:#1a1a1a;">New Order Received 🎉</h2>
+              <p style="color:#666;">Order <strong>#${orderNumber}</strong> has been placed.</p>
+
+              <table style="width:100%;border-collapse:collapse;margin:20px 0;">
+                <tr><td style="padding:8px 0;color:#666;">Customer</td><td style="padding:8px 0;font-weight:600;">${shipping.full_name}</td></tr>
+                <tr><td style="padding:8px 0;color:#666;">Phone</td><td style="padding:8px 0;font-weight:600;">${shipping.phone}</td></tr>
+                <tr><td style="padding:8px 0;color:#666;">Payment</td><td style="padding:8px 0;font-weight:600;text-transform:capitalize;">${paymentMethod === "cod" ? "Cash on Delivery" : paymentMethod}</td></tr>
+                <tr><td style="padding:8px 0;color:#666;">Total</td><td style="padding:8px 0;font-weight:600;font-size:18px;">₹${total.toFixed(2)}</td></tr>
+              </table>
+
+              <h3 style="color:#1a1a1a;margin-top:24px;">Items</h3>
+              <table style="width:100%;border-collapse:collapse;">
+                ${items.map((i) => `
+                  <tr>
+                    <td style="padding:6px 0;border-bottom:1px solid #eee;">${i.productName}${i.sizeMl ? ` (${i.sizeMl}ml)` : ""}</td>
+                    <td style="padding:6px 0;border-bottom:1px solid #eee;text-align:center;">x${i.quantity}</td>
+                    <td style="padding:6px 0;border-bottom:1px solid #eee;text-align:right;">₹${(i.price * i.quantity).toFixed(2)}</td>
+                  </tr>
+                `).join("")}
+              </table>
+
+              <h3 style="color:#1a1a1a;margin-top:24px;">Shipping Address</h3>
+              <p style="color:#666;line-height:1.6;">
+                ${shipping.full_name}<br>
+                ${shipping.line1}${shipping.line2 ? `<br>${shipping.line2}` : ""}<br>
+                ${shipping.city}, ${shipping.state} ${shipping.pincode}
+              </p>
+
+              <p style="margin-top:32px;padding-top:16px;border-top:1px solid #eee;color:#999;font-size:12px;">
+                This is an automated notification from Sugandha.
+              </p>
+            </div>
+          `,
+        }),
+      }).catch((err) => console.error("Admin email notification failed:", err));
+    }
+
+    // Send customer confirmation email
+    if (user?.email && resendKey) {
+      fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${resendKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: "Sugandha <onboarding@resend.dev>",
+          to: user.email,
+          subject: `Order Confirmed — #${orderNumber}`,
+          html: `
+            <div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
+              <h2 style="color:#1a1a1a;">Thank you for your order! 🎉</h2>
+              <p style="color:#666;">Hi ${shipping.full_name}, your order <strong>#${orderNumber}</strong> has been placed successfully.</p>
+
+              <table style="width:100%;border-collapse:collapse;margin:20px 0;">
+                <tr><td style="padding:8px 0;color:#666;">Order Number</td><td style="padding:8px 0;font-weight:600;">#${orderNumber}</td></tr>
+                <tr><td style="padding:8px 0;color:#666;">Payment</td><td style="padding:8px 0;font-weight:600;text-transform:capitalize;">${paymentMethod === "cod" ? "Cash on Delivery" : paymentMethod}</td></tr>
+                <tr><td style="padding:8px 0;color:#666;">Total</td><td style="padding:8px 0;font-weight:600;font-size:18px;">₹${total.toFixed(2)}</td></tr>
+              </table>
+
+              <h3 style="color:#1a1a1a;margin-top:24px;">Items Ordered</h3>
+              <table style="width:100%;border-collapse:collapse;">
+                ${items.map((i) => `
+                  <tr>
+                    <td style="padding:6px 0;border-bottom:1px solid #eee;">${i.productName}${i.sizeMl ? ` (${i.sizeMl}ml)` : ""}</td>
+                    <td style="padding:6px 0;border-bottom:1px solid #eee;text-align:center;">x${i.quantity}</td>
+                    <td style="padding:6px 0;border-bottom:1px solid #eee;text-align:right;">₹${(i.price * i.quantity).toFixed(2)}</td>
+                  </tr>
+                `).join("")}
+              </table>
+
+              <h3 style="color:#1a1a1a;margin-top:24px;">Shipping To</h3>
+              <p style="color:#666;line-height:1.6;">
+                ${shipping.full_name}<br>
+                ${shipping.line1}${shipping.line2 ? `<br>${shipping.line2}` : ""}<br>
+                ${shipping.city}, ${shipping.state} ${shipping.pincode}
+              </p>
+
+              <p style="margin-top:24px;padding:16px;background:#f9f9f9;border-radius:8px;color:#666;font-size:14px;line-height:1.6;">
+                We'll notify you when your order ships. For any queries, contact us at <a href="mailto:support@sugandha.in" style="color:#1a1a1a;">support@sugandha.in</a>.
+              </p>
+            </div>
+          `,
+        }),
+      }).catch((err) => console.error("Customer email notification failed:", err));
     }
 
     return NextResponse.json({

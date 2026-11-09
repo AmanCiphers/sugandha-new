@@ -9,6 +9,7 @@ import {
   ShoppingBag,
   Search,
   User,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -53,6 +54,15 @@ export function Navbar() {
               )}
             >
               Shop All
+            </Link>
+            <Link
+              href="/scent-finder"
+              className={cn(
+                "group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground",
+                pathname === "/scent-finder" && "text-foreground"
+              )}
+            >
+              <Sparkles className="mr-1 h-4 w-4" /> Scent Finder
             </Link>
             <Link
               href="/categories"
@@ -183,6 +193,13 @@ export function Navbar() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Shop All
+                </Link>
+                <Link
+                  href="/scent-finder"
+                  className="rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted flex items-center gap-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Sparkles className="h-4 w-4" /> Scent Finder
                 </Link>
                 <Link
                   href="/categories"

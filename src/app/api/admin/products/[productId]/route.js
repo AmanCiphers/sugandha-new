@@ -98,3 +98,58 @@ export async function PATCH(request, { params }) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+
+export async function DELETE(request, { params }) {
+  const { productId } = await params;
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (profile?.role !== "admin") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const adminSupabase = createAdminClient();
+
+  // Check if product has order items (prevent deletion if referenced)
+  const { data: variants } = await adminSupabase
+    .from("product_variants")
+    .select("id")
+    .eq("product_id", productId);
+
+  if (variants?.length) {
+    const variantIds = variants.map(v => v.id);
+    const { data: referencedItems } = await adminSupabase
+      .from("order_items")
+      .select("id")
+      .in("variant_id", variantIds)
+      .limit(1);
+
+    if (referencedItems?.length) {
+      return NextResponse.json({ error: "Cannot delete product with existing orders. Deactivate instead." }, { status: 400 });
+    }
+  }
+
+  // Delete product (cascades to variants, images via FK)
+  const { error } = await adminSupabase
+    .from("products")
+    .delete()
+    .eq("id", productId);
+
+  if (error) {
+    console.error("Product delete error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
+}

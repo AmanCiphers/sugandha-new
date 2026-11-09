@@ -9,7 +9,7 @@ export function CartProvider({ children }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const saved = sessionStorage.getItem("cart");
+    const saved = localStorage.getItem("cart");
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -19,7 +19,7 @@ export function CartProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    sessionStorage.setItem("cart", JSON.stringify(items));
+    localStorage.setItem("cart", JSON.stringify(items));
   }, [items]);
 
   const addItem = useCallback((productId, quantity = 1, variantInfo = {}) => {

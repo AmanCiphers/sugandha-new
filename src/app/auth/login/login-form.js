@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/features/auth/context/auth-context";
@@ -40,6 +40,13 @@ export default function LoginForm() {
     <div>
       <h1 className="font-serif text-2xl font-bold text-foreground text-center">Welcome Back</h1>
       <p className="mt-2 text-center text-sm text-muted-foreground">Sign in to your account</p>
+
+      {redirectTo !== "/" && (
+        <p className="mt-4 text-center text-sm text-muted-foreground flex items-center justify-center gap-1">
+          <Lock className="h-3.5 w-3.5" />
+          You&apos;ll be redirected back after signing in
+        </p>
+      )}
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-4">
         <div>

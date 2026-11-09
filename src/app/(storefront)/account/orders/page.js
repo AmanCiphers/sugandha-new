@@ -10,7 +10,7 @@ import { getOrdersByUserId } from "@/lib/queries";
 export default async function OrdersPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/auth/login");
+  if (!user) redirect("/auth/login?redirect=/account/orders");
 
   const orders = await getOrdersByUserId(user.id);
 

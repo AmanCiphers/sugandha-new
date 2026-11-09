@@ -3,6 +3,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/features/auth/context/auth-context";
 import { CartProvider } from "@/features/cart/context/cart-context";
+import { AIChatWidget } from "@/components/ui/ai-chat-widget";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -55,6 +56,7 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <CartProvider>
             {children}
+            <AIChatWidget />
             <Toaster
               richColors
               closeButton

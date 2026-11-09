@@ -12,7 +12,7 @@ export default async function OrderDetailPage({ params }) {
   const { orderId } = await params;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/auth/login");
+  if (!user) redirect(`/auth/login?redirect=/account/orders/${orderId}`);
 
   const order = await getOrderByOrderNumber(orderId);
   if (!order) notFound();
