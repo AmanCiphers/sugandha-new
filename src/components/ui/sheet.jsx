@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { XIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { classNames as cn } from "@/lib/utils";
 
 export function Sheet({ children, open, onOpenChange }) {
   return typeof children === "function"

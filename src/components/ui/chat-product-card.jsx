@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ShoppingCart, ExternalLink, Star, Package, Clock, Truck } from "lucide-react";
+import { ShoppingCart, ExternalLink, Star, Package, Clock, Truck, Sparkles, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatPrice } from "@/lib/utils";
@@ -13,6 +13,9 @@ export function ChatProductCard({ product, onAddToCart, compact = false }) {
   const { addItem } = useCart();
   const [hovered, setHovered] = useState(false);
   const [adding, setAdding] = useState(false);
+
+  const isCustomCreation = product.isCustomCreation || !product.inStock;
+  const isInStock = product.inStock && !isCustomCreation;
 
   const handleAdd = async (variantSize) => {
     if (adding) return;
@@ -50,32 +53,46 @@ export function ChatProductCard({ product, onAddToCart, compact = false }) {
                 {product.productName}
               </Link>
               <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                <span className="px-1.5 py-0.5 rounded bg-muted">{categoryIcon} {product.category}</span>
+                <span className="px-1.5 py-0.5 rounded bg-muted">{categoryIcon} {product.category?.name || product.category}</span>
                 <span className={`${intensityColor} px-1.5 py-0.5 rounded bg-muted/50`}><Star className="h-2.5 w-2.5 mr-0.5" /> {intensityLabel}</span>
+                {isCustomCreation && (
+                  <span className="px-1.5 py-0.5 rounded bg-rose-gold/20 text-rose-gold text-[10px] font-medium flex items-center gap-1">
+                    <Sparkles className="h-2.5 w-2.5" /> Custom
+                  </span>
+                )}
               </div>
               <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{product.reason || "Great match for your preferences!"}</p>
               <div className="mt-2 flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
-                  {bestVariant && (
+                  {bestVariant && isInStock && (
                     <span className="text-sm font-bold text-foreground">
                       {bestVariant.size_ml}ml @ ₹{bestVariant.price}
                     </span>
                   )}
-                  {entryVariant && bestVariant && entryVariant.size_ml !== bestVariant.size_ml && (
+                  {entryVariant && bestVariant && entryVariant.size_ml !== bestVariant.size_ml && isInStock && (
                     <span className="text-xs text-muted-foreground line-through">({entryVariant.size_ml}ml @ ₹{entryVariant.price})</span>
+                  )}
+                  {!isInStock && (
+                    <span className="text-sm text-rose-gold font-medium">Custom creation</span>
                   )}
                 </div>
                 <div className="flex gap-1">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-7 px-2.5 text-[10px] gap-1"
-                    onClick={() => handleAdd(bestVariant ? `${bestVariant.size_ml}ml` : undefined)}
-                    disabled={adding}
-                  >
-                    <ShoppingCart className="h-3 w-3" />
-                    {adding ? "Adding..." : "Add"}
-                  </Button>
+                  {isInStock ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 px-2.5 text-[10px] gap-1"
+                      onClick={() => handleAdd(bestVariant ? `${bestVariant.size_ml}ml` : undefined)}
+                      disabled={adding}
+                    >
+                      <ShoppingCart className="h-3 w-3" />
+                      {adding ? "Adding..." : "Add"}
+                    </Button>
+                  ) : (
+                    <Link href={product.contactUrl || "/contact"} className="h-7 w-7 p-1 rounded-lg bg-rose-gold/10 hover:bg-rose-gold/20 text-rose-gold border border-rose-gold/30 transition-colors" aria-label="Request custom creation">
+                      <MessageSquare className="h-3.5 w-3.5" />
+                    </Link>
+                  )}
                   <Link href={product.productUrl} className="h-7 w-7 p-1 rounded-lg border border-border/40 hover:bg-muted transition-colors" aria-label="View details">
                     <ExternalLink className="h-3.5 w-3.5" />
                   </Link>
@@ -118,6 +135,11 @@ export function ChatProductCard({ product, onAddToCart, compact = false }) {
             🚗 Car Perfume
           </div>
         )}
+        {isCustomCreation && (
+          <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-rose-gold/10 text-rose-gold text-[10px] font-medium flex items-center gap-1">
+            <Sparkles className="h-2.5 w-2.5" /> Custom Creation
+          </div>
+        )}
       </div>
 
       <CardContent className="p-4 space-y-3">
@@ -128,7 +150,7 @@ export function ChatProductCard({ product, onAddToCart, compact = false }) {
             </Link>
             <div className="flex flex-wrap items-center gap-1.5 mt-1">
               <span className="px-2 py-0.5 rounded-full bg-muted text-xs font-medium text-foreground">
-                {categoryIcon} {product.category}
+                {categoryIcon} {product.category?.name || product.category}
               </span>
               <span className={`${intensityColor} px-2 py-0.5 rounded-full text-xs font-medium bg-muted/50 flex items-center gap-1`}>
                 <Star className="h-3 w-3" />
@@ -138,6 +160,11 @@ export function ChatProductCard({ product, onAddToCart, compact = false }) {
                 <Package className="h-2.5 w-2.5" />
                 {product.pricingType === "per_ml" ? "Per ML" : "Flat Price"}
               </span>
+              {isCustomCreation && (
+                <span className="px-2 py-0.5 rounded-full bg-rose-gold/10 text-rose-gold text-xs font-medium flex items-center gap-1">
+                  <Sparkles className="h-2.5 w-2.5" /> Custom
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -163,7 +190,7 @@ export function ChatProductCard({ product, onAddToCart, compact = false }) {
 
         <div className="flex items-center justify-between pt-2 border-t border-border/40">
           <div className="flex items-center gap-3">
-            {bestVariant && (
+            {bestVariant && isInStock && (
               <div className="text-right">
                 <span className="text-lg font-bold text-foreground">
                   {bestVariant.size_ml}ml @ ₹{bestVariant.price}
@@ -175,21 +202,38 @@ export function ChatProductCard({ product, onAddToCart, compact = false }) {
                 )}
               </div>
             )}
+            {!isInStock && (
+              <div className="text-right">
+                <span className="text-lg font-bold text-rose-gold">Custom Creation</span>
+                <span className="block text-xs text-muted-foreground">Price on request</span>
+              </div>
+            )}
             <div className="flex-1 flex flex-wrap gap-1.5 text-xs text-muted-foreground">
               <span className="flex items-center gap-1"><Clock className="h-2.5 w-2.5" /> {product.longevity} lasting</span>
               <span className="flex items-center gap-1"><Truck className="h-2.5 w-2.5" /> Free ship ₹499+</span>
             </div>
           </div>
           <div className="flex gap-2">
-            <Button
-              size="sm"
-              className="h-9 px-4 gap-1.5"
-              onClick={() => handleAdd(bestVariant ? `${bestVariant.size_ml}ml` : undefined)}
-              disabled={adding}
-            >
-              <ShoppingCart className="h-4 w-4" />
-              {adding ? "Adding..." : "Add to Cart"}
-            </Button>
+            {isInStock ? (
+              <Button
+                size="sm"
+                className="h-9 px-4 gap-1.5"
+                onClick={() => handleAdd(bestVariant ? `${bestVariant.size_ml}ml` : undefined)}
+                disabled={adding}
+              >
+                <ShoppingCart className="h-4 w-4" />
+                {adding ? "Adding..." : "Add to Cart"}
+              </Button>
+            ) : (
+              <Link 
+                href={product.contactUrl || "/contact"} 
+                className="h-9 px-4 flex items-center justify-center gap-1.5 rounded-lg bg-rose-gold text-background hover:bg-rose-gold/90 transition-colors"
+                aria-label="Request custom creation"
+              >
+                <MessageSquare className="h-4 w-4" />
+                <span>Request Custom</span>
+              </Link>
+            )}
             <Link 
               href={product.productUrl} 
               className="h-9 w-9 flex items-center justify-center rounded-lg border border-border/40 hover:bg-muted hover:border-foreground/30 transition-all"

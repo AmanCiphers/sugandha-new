@@ -5,7 +5,6 @@ import { X, Send, Sparkles, Loader2, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChatProductCard } from "@/components/ui/chat-product-card";
-import { formatPrice } from "@/lib/utils";
 import { useCart } from "@/features/cart/context/cart-context";
 import { toast } from "sonner";
 

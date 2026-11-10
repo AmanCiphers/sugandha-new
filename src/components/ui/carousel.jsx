@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, createContext, useContext, useRef } from "react";
-import { cn } from "@/lib/utils";
+import { classNames as cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -67,7 +67,7 @@ export function Carousel({
       }}
     >
       <div
-        className={cn("relative", className)}
+        className={classNames("relative", className)}
         role="region"
         aria-roledescription="carousel"
         data-slot="carousel"
@@ -89,7 +89,7 @@ export function CarouselContent({ className, ...props }) {
       data-slot="carousel-content"
     >
       <div
-        className={cn(
+        className={classNames(
           "flex",
           orientation === "horizontal" ? "-ml-4" : "-mt-4 flex-col",
           className
@@ -108,7 +108,7 @@ export function CarouselItem({ className, ...props }) {
       role="group"
       aria-roledescription="slide"
       data-slot="carousel-item"
-      className={cn(
+      className={classNames(
         "min-w-0 shrink-0 grow-0 basis-full snap-start",
         orientation === "horizontal" ? "pl-4" : "pt-4",
         className
@@ -126,7 +126,7 @@ export function CarouselPrevious({ className, variant = "outline", size = "icon-
       data-slot="carousel-previous"
       variant={variant}
       size={size}
-      className={cn(
+      className={classNames(
         "absolute touch-manipulation rounded-full",
         orientation === "horizontal"
           ? "inset-y-0 -left-12 my-auto"
@@ -151,7 +151,7 @@ export function CarouselNext({ className, variant = "outline", size = "icon-sm",
       data-slot="carousel-next"
       variant={variant}
       size={size}
-      className={cn(
+      className={classNames(
         "absolute touch-manipulation rounded-full",
         orientation === "horizontal"
           ? "inset-y-0 -right-12 my-auto"

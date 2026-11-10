@@ -1,5 +1,5 @@
 import { cva } from "class-variance-authority";
-import { cn } from "@/lib/utils";
+import { classNames as cn } from "@/lib/utils";
 
 const buttonVariants = cva(
   "group/button inline-flex shrink-0  items-center justify-center rounded-lg border border-transparent text-sm font-medium whitespace-nowrap transition-all duration-150 outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 active:scale-[0.97]",
@@ -36,7 +36,7 @@ export function Button({ className, variant, size, ...props }) {
   return (
     <button
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={classNames(buttonVariants({ variant, size, className }))}
       {...props}
     />
   );

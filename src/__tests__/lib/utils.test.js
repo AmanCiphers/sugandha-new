@@ -1,4 +1,4 @@
-import { formatPrice, formatDate, formatDateTime, slugify, truncate, generateOrderNumber, cn } from '@/lib/utils';
+import { formatPrice, formatDate, formatDateTime, slugify, truncate, generateOrderNumber, classNames } from '@/lib/utils';
 
 describe('formatPrice', () => {
   it('formats positive numbers correctly', () => {
@@ -99,24 +99,26 @@ describe('generateOrderNumber', () => {
   });
 });
 
-describe('cn (classnames utility)', () => {
+describe('classNames (classnames utility)', () => {
   it('joins class names', () => {
-    expect(cn('a', 'b', 'c')).toBe('a b c');
+    expect(classNames('a', 'b', 'c')).toBe('a b c');
   });
 
   it('handles conditional classes', () => {
-    expect(cn('base', true && 'conditional', false && 'not-included')).toBe('base conditional');
+    expect(classNames('base', true && 'conditional', false && 'not-included')).toBe('base conditional');
   });
 
   it('handles object syntax', () => {
-    expect(cn({ active: true, disabled: false })).toBe('active');
+    expect(classNames({ active: true, disabled: false })).toBe('active');
   });
 
   it('handles arrays', () => {
-    expect(cn(['a', 'b', 'c'])).toBe('a b c');
+    expect(classNames(['a', 'b', 'c'])).toBe('a b c');
   });
 
   it('merges tailwind classes correctly', () => {
-    expect(cn('px-2 py-1', 'px-4')).toBe('py-1 px-4'); // px-4 overrides px-2
+    // twMerge correctly merges conflicting tailwind classes
+    // px-4 overrides px-2
+    expect(classNames('px-2 py-1', 'px-4')).toBe('py-1 px-4');
   });
 });

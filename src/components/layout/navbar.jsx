@@ -16,7 +16,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { useCart } from "@/features/cart/context/cart-context";
 import { STORE_NAME } from "@/constants";
-import { cn } from "@/lib/utils";
+import { classNames as cn } from "@/lib/utils";
 
 export function Navbar() {
   const pathname = usePathname();

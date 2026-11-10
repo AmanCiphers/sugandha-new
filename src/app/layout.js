@@ -16,6 +16,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata = {
+  metadataBase: new URL("http://localhost:3000"),
   title: "Sugandha - Premium Fragrances",
   description:
     "Discover your signature scent with Sugandha. Premium perfumes, attars, and car fragrances curated for those who appreciate the art of fine scent.",

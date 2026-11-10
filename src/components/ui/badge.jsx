@@ -1,5 +1,5 @@
 import { cva } from "class-variance-authority";
-import { cn } from "@/lib/utils";
+import { classNames as cn } from "@/lib/utils";
 
 const badgeVariants = cva(
   "group/badge inline-flex h-5 w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-full border border-transparent px-2 py-0.5 text-xs font-medium whitespace-nowrap transition-all",
@@ -22,7 +22,7 @@ export function Badge({ className, variant, ...props }) {
   return (
     <span
       data-slot="badge"
-      className={cn(badgeVariants({ variant }), className)}
+      className={classNames(badgeVariants({ variant }), className)}
       {...props}
     />
   );

@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { classNames as cn } from "@/lib/utils";
 
 export function Separator({ className, orientation = "horizontal", ...props }) {
   return (
@@ -6,7 +6,7 @@ export function Separator({ className, orientation = "horizontal", ...props }) {
       data-slot="separator"
       role="separator"
       aria-orientation={orientation}
-      className={cn(
+      className={classNames(
         "shrink-0 bg-border",
         orientation === "horizontal" ? "h-px w-full" : "h-full w-px",
         className

@@ -1,19 +1,19 @@
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-export function cn(...inputs) {
-  return twMerge(clsx(inputs));
+function classNamesUtility(...inputs) {
+  return twMerge(clsx(...inputs));
 }
 
-export function formatPrice(price) {
+function formatPriceINRUtility(priceValue) {
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: "INR",
     maximumFractionDigits: 0,
-  }).format(price);
+  }).format(priceValue);
 }
 
-export function formatDate(date) {
+function formatDate(date) {
   return new Intl.DateTimeFormat("en-IN", {
     day: "numeric",
     month: "short",
@@ -21,7 +21,7 @@ export function formatDate(date) {
   }).format(new Date(date));
 }
 
-export function formatDateTime(date) {
+function formatDateTime(date) {
   return new Intl.DateTimeFormat("en-IN", {
     day: "numeric",
     month: "short",
@@ -31,7 +31,7 @@ export function formatDateTime(date) {
   }).format(new Date(date));
 }
 
-export function slugify(text) {
+function slugify(text) {
   return text
     .toLowerCase()
     .replace(/[^\w\s-]/g, "")
@@ -40,13 +40,16 @@ export function slugify(text) {
     .trim();
 }
 
-export function truncate(text, length) {
+function truncate(text, length) {
   if (text.length <= length) return text;
   return text.slice(0, length).trimEnd() + "...";
 }
 
-export function generateOrderNumber() {
+function generateOrderNumber() {
   const timestamp = Date.now().toString(36).toUpperCase();
   const random = Math.random().toString(36).substring(2, 6).toUpperCase();
   return `SGD-${timestamp}-${random}`;
 }
+
+export { classNamesUtility as classNames, formatPriceINRUtility as formatPriceINR, formatDate, formatDateTime, slugify, truncate, generateOrderNumber };
+export const formatPrice = formatPriceINRUtility;

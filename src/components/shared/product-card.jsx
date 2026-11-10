@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ShoppingBag, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { cn, formatPrice } from "@/lib/utils";
+import { classNames as cn, formatPrice } from "@/lib/utils";
 import { useCart } from "@/features/cart/context/cart-context";
 
 export function ProductCard({

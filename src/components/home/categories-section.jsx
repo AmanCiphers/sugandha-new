@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { SectionHeader } from "@/components/shared/section-header";
-import { cn } from "@/lib/utils";
+import { classNames as cn } from "@/lib/utils";
 
 const fallbackGradients = [
   "from-rose-gold/30 to-muted-blush",

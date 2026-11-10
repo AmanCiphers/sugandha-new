@@ -18,7 +18,7 @@ import {
   Percent,
   Layers,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { classNames as cn } from "@/lib/utils";
 import { STORE_NAME } from "@/constants";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";

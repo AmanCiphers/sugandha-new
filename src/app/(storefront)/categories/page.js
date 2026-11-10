@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { SectionHeader } from "@/components/shared/section-header";
-import { cn } from "@/lib/utils";
+import { classNames as cn } from "@/lib/utils";
 import { getCategories } from "@/lib/queries";
 
 const gradients = [
@@ -28,7 +28,7 @@ export default async function CategoriesPage() {
           <Link
             key={category.id}
             href={`/category/${category.slug}`}
-            className={cn(
+            className={classNames(
               "group relative flex h-[220px] items-end overflow-hidden rounded-lg border border-border/40 bg-gradient-to-br transition-all duration-300 hover:shadow-lg",
               gradients[index % gradients.length]
             )}

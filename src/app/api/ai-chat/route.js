@@ -175,7 +175,7 @@ function buildPrompt(userMessage, history) {
 
   return `You are Arya, Sugandha's warm, knowledgeable fragrance consultant. Chat naturally like a friend helping someone find their perfect scent.
 
-OUR CATALOG (8 products):
+OUR CATALOG (8 products in stock):
 ${catalogStr}
 
 RECENT CONVERSATION:
@@ -193,15 +193,17 @@ RESPOND AS ARYA:
 - NEVER sound robotic or like a catalog
 - When recommending, always suggest the BEST variant for their need (e.g., "6ml is the sweet spot")
 
-If they ask for recommendations, suggest 1-3 specific products with variant suggestions.
+IMPORTANT RULES:
+1. You can recommend ANY fragrance from the global market - not just our catalog
+2. If the customer wants a fragrance we HAVE in stock, recommend it from our catalog with price
+3. If the customer wants a fragrance we DON'T have, you can say: "We don't carry that exact fragrance, but our master perfumers can create a custom version for a fraction of the luxury price! 💫 Would you like me to connect you with our team?"
+4. For custom creations, mention they can visit our contact page to request a custom fragrance
 
-IMPORTANT: If you want to add a product to their cart, include this exact format in your response:
-[ADD_TO_CART: product_id=royal-oud-attar, variant=6ml, quantity=1]
-- product_id must match catalog exactly
-- variant must be one of: 3ml, 6ml, 12ml, 10ml
-- quantity is optional (default 1)
+RESPONSE FORMAT:
+- For in-stock products: Include [ADD_TO_CART: product_id=xxx, variant=6ml, quantity=1] tag
+- For custom creations: Mention "Custom Creation Available" and they can visit /contact
 
-Also include product links naturally: "Check out the [Royal Oud Attar](/product/royal-oud-attar) for details."`;
+If they ask for recommendations, suggest 1-3 specific products with variant suggestions.`;
 }
 
 async function callGroq(message, history) {
@@ -220,7 +222,7 @@ async function callGroq(message, history) {
     body: JSON.stringify({
       model: GROQ_MODEL,
       messages: [
-        { role: "system", content: "You are Arya, a warm fragrance consultant. Be conversational, friendly, and helpful. Use emojis naturally." },
+        { role: "system", content: "You are Arya, a warm fragrance consultant. Be conversational, friendly, and helpful. Use emojis naturally. You know the global fragrance market and our catalog." },
         { role: "user", content: prompt },
       ],
       temperature: 0.7,
@@ -359,19 +361,28 @@ export async function POST(request) {
       return product ? { ...action, product } : action;
     }) : undefined;
 
-    return NextResponse.json({ 
-      reply,
-      recommendations: recommendations.map(r => ({
+    // Build recommendations with availability info
+    const enrichedRecommendations = recommendations.map(r => {
+      const inStock = r.stock > 0;
+      return {
         productId: r.id,
         slug: r.slug,
         productName: r.name,
-        reason: "Perfect for you!",
-        recommendedVariant: `${r.variants[1]?.size_ml}ml @ ₹${r.variants[1]?.price} (or ${r.variants[0]?.size_ml}ml @ ₹${r.variants[0]?.price})`,
+        reason: inStock ? "Perfect for you!" : "We don't stock this, but our perfumers can create a custom version!",
+        recommendedVariant: inStock ? `${r.variants[1]?.size_ml}ml @ ₹${r.variants[1]?.price} (or ${r.variants[0]?.size_ml}ml @ ₹${r.variants[0]?.price})` : "Custom creation - price on request",
         bestFor: r.occasions.join(", "),
         imageUrl: r.imageUrl,
         variants: r.variants,
-        productUrl: `/product/${r.slug}`,
-      })),
+        productUrl: inStock ? `/product/${r.slug}` : "/contact",
+        inStock,
+        isCustomCreation: !inStock,
+        contactUrl: "/contact",
+      };
+    });
+
+    return NextResponse.json({ 
+      reply,
+      recommendations: enrichedRecommendations,
       cartActions: enrichedCartActions,
       userId,
     });

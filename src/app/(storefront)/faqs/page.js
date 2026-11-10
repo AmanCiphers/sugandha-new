@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { classNames as cn } from "@/lib/utils";
 import { SectionHeader } from "@/components/shared/section-header";
 
 const faqs = [
@@ -35,7 +35,7 @@ export default function FAQsPage() {
             >
               <span className="text-sm font-medium text-foreground">{faq.q}</span>
               <ChevronDown
-                className={cn(
+                className={classNames(
                   "h-4 w-4 text-muted-foreground transition-transform duration-200",
                   openIndex === index && "rotate-180"
                 )}

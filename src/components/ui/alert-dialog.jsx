@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { classNames as cn } from "@/lib/utils";
 
 const AlertDialog = ({ open, onOpenChange, children }) => {
   const [isOpen, setIsOpen] = useState(open);
@@ -53,19 +53,19 @@ const AlertDialogTrigger = ({ children, onClick }) => {
 };
 
 const AlertDialogContent = ({ children, className }) => {
-  return <div className={cn("space-y-4", className)}>{children}</div>;
+  return <div className={classNames("space-y-4", className)}>{children}</div>;
 };
 
 const AlertDialogHeader = ({ children, className }) => {
-  return <div className={cn("space-y-2", className)}>{children}</div>;
+  return <div className={classNames("space-y-2", className)}>{children}</div>;
 };
 
 const AlertDialogTitle = ({ children, className }) => {
-  return <h2 className={cn("text-lg font-semibold", className)}>{children}</h2>;
+  return <h2 className={classNames("text-lg font-semibold", className)}>{children}</h2>;
 };
 
 const AlertDialogDescription = ({ children, className }) => {
-  return <p className={cn("text-sm text-muted-foreground", className)}>{children}</p>;
+  return <p className={classNames("text-sm text-muted-foreground", className)}>{children}</p>;
 };
 
 const AlertDialogCancel = ({ children, onClick, className, ...props }) => {
@@ -73,7 +73,7 @@ const AlertDialogCancel = ({ children, onClick, className, ...props }) => {
     <Button
       variant="outline"
       onClick={(e) => { onClick?.(e); }}
-      className={cn("rounded-full", className)}
+      className={classNames("rounded-full", className)}
       {...props}
     >
       {children}
@@ -85,7 +85,7 @@ const AlertDialogAction = ({ children, onClick, className, ...props }) => {
   return (
     <Button
       onClick={(e) => { onClick?.(e); }}
-      className={cn("rounded-full", className)}
+      className={classNames("rounded-full", className)}
       {...props}
     >
       {children}
